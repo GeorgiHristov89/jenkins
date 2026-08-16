@@ -1,0 +1,13 @@
+{
+  "name": "jenkins-demo-app",
+  "version": "1.0.0",
+  "description": "A lightweight Node.js demo app with tests for Jenkins CI/CD",
+  "main": "src/calculator.js",
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "build": "node src/build.js"
+  },
+  "keywords": ["jenkins", "ci-cd", "demo"],
+  "author": "Georgi",
+  "license": "MIT"
+}

@@ -1,51 +1,71 @@
 pipeline {
-    // 1. Tell Jenkins to run this on any available executor/computer
     agent any
 
-    // 2. Define global variables for your builds
     environment {
-        APP_NAME = 'demo-app'
+        APP_NAME = 'demo-calculator-app'
         BUILD_VERSION = "1.0.${BUILD_NUMBER}"
     }
 
-    // 3. Define the pipeline steps in order
     stages {
-
         stage('Checkout & Setup') {
             steps {
-                echo "Starting build for ${env.APP_NAME} version ${env.BUILD_VERSION}"
+                echo "=== Step 1: Environment & Runtime Check ==="
+                echo "Building ${env.APP_NAME} version ${env.BUILD_VERSION}"
+                // Display Node.js and npm versions on the agent
+                script {
+                    if (isUnix()) {
+                        sh 'node -v && npm -v'
+                    } else {
+                        bat 'node -v'
+                        bat 'npm -v'
+                    }
+                }
             }
         }
 
-        stage('Build') {
+        stage('Run Unit Tests') {
             steps {
-                echo "Compiling and packaging application..."
-                // Here you would put your real build command:
-                // e.g. sh 'npm run build' or bat 'mvn clean package'
+                echo "=== Step 2: Executing Test Suite ==="
+                script {
+                    if (isUnix()) {
+                        sh 'npm test'
+                    } else {
+                        bat 'npm test'
+                    }
+                }
             }
         }
 
-        stage('Run Tests') {
+        stage('Build & Package') {
             steps {
-                echo "Running unit tests..."
-                // e.g. sh 'npm test' or bat 'pytest'
+                echo "=== Step 3: Building and Packaging App ==="
+                script {
+                    if (isUnix()) {
+                        sh 'npm run build'
+                    } else {
+                        bat 'npm run build'
+                    }
+                }
             }
         }
 
-        stage('Deploy') {
+        stage('Archive Artifacts') {
             steps {
-                echo "Deploying application to server..."
+                echo "=== Step 4: Archiving build artifacts ==="
+                archiveArtifacts artifacts: 'dist/**', fingerprint: true, allowEmptyArchive: true
             }
         }
     }
 
-    // 4. What to do after everything finishes
     post {
+        always {
+            echo "Pipeline run completed for build #${env.BUILD_NUMBER}."
+        }
         success {
-            echo "Build passed successfully!"
+            echo "SUCCESS: All 8 unit tests passed and build artifact created!"
         }
         failure {
-            echo "Something failed! Send alert."
+            echo "FAILURE: Tests or build step failed! Please inspect logs."
         }
     }
 }

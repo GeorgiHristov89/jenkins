@@ -2,7 +2,7 @@ pipeline {
     // 1. Tell Jenkins to run this on any available executor/computer
     agent any
 
-    // 2. Define global variables for your build
+    // 2. Define global variables for your builds
     environment {
         APP_NAME = 'demo-app'
         BUILD_VERSION = "1.0.${BUILD_NUMBER}"

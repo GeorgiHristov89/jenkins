@@ -1,70 +1,51 @@
 pipeline {
+    // 1. Tell Jenkins to run this on any available executor/computer
     agent any
 
+    // 2. Define global variables for your build
     environment {
         APP_NAME = 'demo-app'
         BUILD_VERSION = "1.0.${BUILD_NUMBER}"
     }
 
+    // 3. Define the pipeline steps in order
     stages {
+
         stage('Checkout & Setup') {
             steps {
-                echo "=== Step 1: Preparing build for ${env.APP_NAME} (v${env.BUILD_VERSION}) ==="
-                // Prints environment details
-                echo "Running on node: ${env.NODE_NAME}"
-                echo "Workspace path: ${env.WORKSPACE}"
+                echo "Starting build for ${env.APP_NAME} version ${env.BUILD_VERSION}"
             }
         }
 
         stage('Build') {
             steps {
-                echo "=== Step 2: Building Application ==="
-                // On Windows Jenkins agents use 'bat', on Linux/macOS agents use 'sh'
-                script {
-                    if (isUnix()) {
-                        sh 'echo "Compiling and packaging application..."'
-                        sh 'mkdir -p dist && echo "Build output file content" > dist/output.txt'
-                    } else {
-                        bat 'echo Compiling and packaging application...'
-                        bat 'if not exist dist mkdir dist'
-                        bat 'echo Build output file content > dist\\output.txt'
-                    }
-                }
+                echo "Compiling and packaging application..."
+                // Here you would put your real build command:
+                // e.g. sh 'npm run build' or bat 'mvn clean package'
             }
         }
 
         stage('Run Tests') {
             steps {
-                echo "=== Step 3: Running Unit and Integration Tests ==="
-                script {
-                    if (isUnix()) {
-                        sh 'echo "Test suite passed: 100% test coverage."'
-                    } else {
-                        bat 'echo Test suite passed: 100% test coverage.'
-                    }
-                }
+                echo "Running unit tests..."
+                // e.g. sh 'npm test' or bat 'pytest'
             }
         }
 
-        stage('Deploy / Archive') {
+        stage('Deploy') {
             steps {
-                echo "=== Step 4: Archiving build artifacts ==="
-                // Archive created files so they are downloadable from Jenkins UI
-                archiveArtifacts artifacts: 'dist/**', fingerprint: true, allowEmptyArchive: true
-                echo "Deployment complete for v${env.BUILD_VERSION}!"
+                echo "Deploying application to server..."
             }
         }
     }
 
+    // 4. What to do after everything finishes
     post {
-        always {
-            echo "Pipeline run completed."
-        }
         success {
-            echo "SUCCESS: Pipeline executed successfully!"
+            echo "Build passed successfully!"
         }
         failure {
-            echo "FAILURE: The build or test stage failed."
+            echo "Something failed! Send alert."
         }
     }
 }

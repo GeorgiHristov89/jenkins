@@ -1,6 +1,11 @@
 pipeline {
     agent any
 
+    // Automatically provision and use Node.js from Jenkins Tools
+    tools {
+        nodejs 'NodeJS-20'
+    }
+
     environment {
         APP_NAME = 'demo-calculator-app'
         BUILD_VERSION = "1.0.${BUILD_NUMBER}"
@@ -11,41 +16,21 @@ pipeline {
             steps {
                 echo "=== Step 1: Environment & Runtime Check ==="
                 echo "Building ${env.APP_NAME} version ${env.BUILD_VERSION}"
-                // Display Node.js and npm versions on the agent
-                script {
-                    if (isUnix()) {
-                        sh 'node -v && npm -v'
-                    } else {
-                        bat 'node -v'
-                        bat 'npm -v'
-                    }
-                }
+                sh 'node -v && npm -v'
             }
         }
 
         stage('Run Unit Tests') {
             steps {
                 echo "=== Step 2: Executing Test Suite ==="
-                script {
-                    if (isUnix()) {
-                        sh 'npm test'
-                    } else {
-                        bat 'npm test'
-                    }
-                }
+                sh 'npm test'
             }
         }
 
         stage('Build & Package') {
             steps {
                 echo "=== Step 3: Building and Packaging App ==="
-                script {
-                    if (isUnix()) {
-                        sh 'npm run build'
-                    } else {
-                        bat 'npm run build'
-                    }
-                }
+                sh 'npm run build'
             }
         }
 

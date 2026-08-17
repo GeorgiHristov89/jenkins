@@ -4,8 +4,10 @@
   "description": "A lightweight Node.js demo app with tests for Jenkins CI/CD",
   "main": "src/calculator.js",
   "scripts": {
+    "start": "node src/server.js",
     "test": "node --test test/*.test.js",
-    "build": "node src/build.js"
+    "build": "node src/build.js",
+    "scan:zap": "docker run --rm -v \"$PWD:/zap/wrk/:rw\" -t ghcr.io/zaproxy/zaproxy:stable zap-baseline.py -t http://host.docker.internal:3000 -r zap_report.html -J zap_report.json -I"
   },
   "keywords": ["jenkins", "ci-cd", "demo"],
   "author": "Georgi",
